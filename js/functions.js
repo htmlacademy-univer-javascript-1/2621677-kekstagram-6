@@ -28,3 +28,5 @@ const extractNumbers = (input) => {
     return parseInt(numbers, 10);
   }
 };
+
+export { checkStringLength, isPalindrome, extractNumbers };
