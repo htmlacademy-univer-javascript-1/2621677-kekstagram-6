@@ -1,16 +1,7 @@
-// js/main.js
+const getRandomInteger = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-// Функция для генерации случайного числа в диапазоне
-const getRandomInteger = (min, max) => {
-  const lower = Math.ceil(Math.min(Math.abs(min), Math.abs(max)));
-  const upper = Math.floor(Math.max(Math.abs(min), Math.abs(max)));
-  const result = Math.random() * (upper - lower + 1) + lower;
-  return Math.floor(result);
-};
-
-// Генератор уникальных ID для комментариев
 const generateCommentId = () => {
-  let lastId = 0;
+  let lastId = 100;
   return () => {
     lastId += 1;
     return lastId;
@@ -18,35 +9,6 @@ const generateCommentId = () => {
 };
 
 const createCommentId = generateCommentId();
-
-// Данные для генерации
-const DESCRIPTIONS = [
-  'Прекрасный закат на море',
-  'Горный пейзаж в утреннем тумане',
-  'Улочки старого города',
-  'Архитектурный шедевр',
-  'Летний день в парке',
-  'Зимняя сказка в лесу',
-  'Городские огни ночью',
-  'Путешествие по неизведанным местам',
-  'Моменты счастья',
-  'Красота природы',
-  'Уютный вечер дома',
-  'Приключения ждут',
-  'Тишина и спокойствие',
-  'Яркие краски жизни',
-  'Воспоминания о лете',
-  'Прогулка под дождем',
-  'Солнечный день в горах',
-  'Морской бриз и волны',
-  'История в каждом кадре',
-  'Эмоции, застывшие во времени',
-  'Мир в объективе',
-  'Невероятные приключения',
-  'Красота в простом',
-  'Моменты, которые стоит помнить',
-  'Искусство фотографии'
-];
 
 const MESSAGES = [
   'Всё отлично!',
@@ -58,44 +20,20 @@ const MESSAGES = [
 ];
 
 const NAMES = [
-  'Артём',
-  'Мария',
-  'Александр',
-  'Елена',
-  'Дмитрий',
-  'Ольга',
-  'Сергей',
-  'Анна',
-  'Иван',
-  'Наталья',
-  'Михаил',
-  'Виктория',
-  'Андрей',
-  'Юлия',
-  'Павел',
-  'Екатерина',
-  'Роман',
-  'Алина',
-  'Никита',
-  'Ксения'
+  'Артём', 'Мария', 'Александр', 'Елена', 'Дмитрий',
+  'Ольга', 'Сергей', 'Анна', 'Иван', 'Наталья',
+  'Михаил', 'Виктория', 'Андрей', 'Юлия', 'Павел'
 ];
 
-// Функция для получения случайного элемента массива
-const getRandomArrayElement = (elements) => {
-  return elements[getRandomInteger(0, elements.length - 1)];
-};
+const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
 
-// Создание одного комментария
-const createComment = () => {
-  return {
-    id: createCommentId(),
-    avatar: `img/avatar-${getRandomInteger(1, 6)}.svg`,
-    message: getRandomArrayElement(MESSAGES),
-    name: getRandomArrayElement(NAMES)
-  };
-};
+const createComment = () => ({
+  id: createCommentId(),
+  avatar: `img/avatar-${getRandomInteger(1, 6)}.svg`,
+  message: getRandomArrayElement(MESSAGES),
+  name: getRandomArrayElement(NAMES)
+});
 
-// Создание массива комментариев
 const createComments = () => {
   const commentsCount = getRandomInteger(0, 30);
   const comments = [];
@@ -105,29 +43,20 @@ const createComments = () => {
   return comments;
 };
 
-// Создание объекта фотографии
-const createPhoto = (id) => {
-  return {
-    id: id,
-    url: `photos/${id}.jpg`,
-    description: DESCRIPTIONS[id - 1] || `Фотография ${id}`,
-    likes: getRandomInteger(15, 200),
-    comments: createComments()
-  };
-};
+const createPhoto = (id) => ({
+  id,
+  url: `photos/${id}.jpg`,
+  description: `Описание фотографии ${id}`,
+  likes: getRandomInteger(15, 200),
+  comments: createComments()
+});
 
-// Генерация массива из 25 фотографий
 const generatePhotos = () => {
-  const photos = [];
+  const photosArray = [];
   for (let i = 1; i <= 25; i++) {
-    photos.push(createPhoto(i));
+    photosArray.push(createPhoto(i));
   }
-  return photos;
+  return photosArray;
 };
 
-// Создаем массив фотографий
 const photos = generatePhotos();
-
-// Выводим в консоль для проверки
-console.log('Сгенерировано фотографий:', photos.length);
-console.log(photos);
