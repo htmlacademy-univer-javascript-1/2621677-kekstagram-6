@@ -60,3 +60,6 @@ const generatePhotos = () => {
 };
 
 const photos = generatePhotos();
+
+// Экспортируем переменную, чтобы она использовалась
+export { photos };
