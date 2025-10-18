@@ -5,5 +5,3 @@ const photos = generatePhotos();
 
 // Экспортируем переменную, чтобы она использовалась
 export { photos };
-
-console.log('Данные загружены:', photos);
