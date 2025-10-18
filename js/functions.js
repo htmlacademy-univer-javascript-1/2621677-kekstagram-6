@@ -1,3 +1,4 @@
+/*
 const checkStringLength = (string, maxLength) => string.length <= maxLength;
 
 const isPalindrome = (string) => {
@@ -29,4 +30,5 @@ const extractNumbers = (input) => {
   }
 };
 
-export { checkStringLength, isPalindrome, extractNumbers };
+export { checkStringLength, isPallndrome, extractNumbers };
+*/
