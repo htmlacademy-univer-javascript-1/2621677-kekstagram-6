@@ -1,7 +1,7 @@
-import { generatePhotos } from './photos.js';
+import { getPhotos } from './data.js';
+import { renderThumbnails } from './thumbnails.js';
 
-// Генерируем данные
-const photos = generatePhotos();
-
-// Экспортируем переменную, чтобы она использовалась
-export { photos };
+document.addEventListener('DOMContentLoaded', () => {
+  const photos = getPhotos();
+  renderThumbnails(photos);
+});
