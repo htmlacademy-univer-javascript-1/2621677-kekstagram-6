@@ -1,75 +1,66 @@
 import { isEscapeKey } from './util.js';
 
-const bigPictureElement = document.querySelector('.big-picture');
-const closeButton = bigPictureElement.querySelector('.big-picture__cancel');
-const bigImage = bigPictureElement.querySelector('.big-picture__img img');
-const likesCount = bigPictureElement.querySelector('.likes-count');
-const commentsCount = bigPictureElement.querySelector('.comments-count');
-const commentsList = bigPictureElement.querySelector('.social__comments');
-const photoDescription = bigPictureElement.querySelector('.social__caption');
-const commentCountBlock = bigPictureElement.querySelector('.social__comment-count');
-const commentsLoader = bigPictureElement.querySelector('.comments-loader');
+const bigPicture = document.querySelector('.big-picture');
+const closeBtn = bigPicture.querySelector('.big-picture__cancel');
+const bigImage = bigPicture.querySelector('.big-picture__img img');
+const likesCount = bigPicture.querySelector('.likes-count');
+const commentsCount = bigPicture.querySelector('.comments-count');
+const commentsList = bigPicture.querySelector('.social__comments');
+const description = bigPicture.querySelector('.social__caption');
 
-commentCountBlock.classList.add('hidden');
-commentsLoader.classList.add('hidden');
+bigPicture.querySelector('.social__comment-count').classList.add('hidden');
+bigPicture.querySelector('.comments-loader').classList.add('hidden');
 
-const onDocumentKeydown = (evt) => {
-  if (isEscapeKey(evt)) {
-    evt.preventDefault();
+function closeModal() {
+  bigPicture.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+  document.removeEventListener('keydown', onEscPress);
+  closeBtn.removeEventListener('click', closeModal);
+}
+
+function onEscPress(event) {
+  if (isEscapeKey(event)) {
+    event.preventDefault();
     closeModal();
   }
-};
+}
 
-const closeModal = () => {
-  bigPictureElement.classList.add('hidden');
-  document.body.classList.remove('modal-open');
+function createComment(commentData) {
+  const comment = document.createElement('li');
+  comment.className = 'social__comment';
 
-  document.removeEventListener('keydown', onDocumentKeydown);
-  closeButton.removeEventListener('click', closeModal);
-};
+  const avatar = document.createElement('img');
+  avatar.className = 'social__picture';
+  avatar.src = commentData.avatar;
+  avatar.alt = commentData.name;
+  avatar.width = 35;
+  avatar.height = 35;
 
-const createCommentElement = (comment) => {
-  const commentElement = document.createElement('li');
-  commentElement.classList.add('social__comment');
+  const text = document.createElement('p');
+  text.className = 'social__text';
+  text.textContent = commentData.message;
 
-  const avatarImage = document.createElement('img');
-  avatarImage.classList.add('social__picture');
-  avatarImage.src = comment.avatar;
-  avatarImage.alt = comment.name;
-  avatarImage.width = 35;
-  avatarImage.height = 35;
+  comment.append(avatar, text);
+  return comment;
+}
 
-  const commentText = document.createElement('p');
-  commentText.classList.add('social__text');
-  commentText.textContent = comment.message;
-
-  commentElement.appendChild(avatarImage);
-  commentElement.appendChild(commentText);
-
-  return commentElement;
-};
-
-const openFullscreen = (photoData) => {
+function openFullscreen(photoData) {
   bigImage.src = photoData.url;
   bigImage.alt = photoData.description;
   likesCount.textContent = photoData.likes;
   commentsCount.textContent = photoData.comments.length;
-  photoDescription.textContent = photoData.description;
+  description.textContent = photoData.description;
 
   commentsList.innerHTML = '';
-  const commentsFragment = document.createDocumentFragment();
-
-  photoData.comments.forEach((comment) => {
-    commentsFragment.appendChild(createCommentElement(comment));
+  photoData.comments.forEach(comment => {
+    commentsList.append(createComment(comment));
   });
 
-  commentsList.appendChild(commentsFragment);
-
-  bigPictureElement.classList.remove('hidden');
+  bigPicture.classList.remove('hidden');
   document.body.classList.add('modal-open');
 
-  document.addEventListener('keydown', onDocumentKeydown);
-  closeButton.addEventListener('click', closeModal);
-};
+  document.addEventListener('keydown', onEscPress);
+  closeBtn.addEventListener('click', closeModal);
+}
 
 export { openFullscreen };
