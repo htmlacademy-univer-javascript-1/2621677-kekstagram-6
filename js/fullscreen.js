@@ -1,5 +1,7 @@
 import { isEscapeKey } from './util.js';
 
+import { isEscapeKey } from './util.js';
+
 const bigPictureElement = document.querySelector('.big-picture');
 const closeButton = bigPictureElement.querySelector('.big-picture__cancel');
 const bigImage = bigPictureElement.querySelector('.big-picture__img img');
@@ -13,19 +15,19 @@ const commentsLoader = bigPictureElement.querySelector('.comments-loader');
 commentCountBlock.classList.add('hidden');
 commentsLoader.classList.add('hidden');
 
+const onDocumentKeydown = (evt) => {
+  if (isEscapeKey(evt)) {
+    evt.preventDefault();
+    closeModal();
+  }
+};
+
 const closeModal = () => {
   bigPictureElement.classList.add('hidden');
   document.body.classList.remove('modal-open');
 
   document.removeEventListener('keydown', onDocumentKeydown);
   closeButton.removeEventListener('click', closeModal);
-};
-
-const onDocumentKeydown = (evt) => {
-  if (isEscapeKey(evt)) {
-    evt.preventDefault();
-    closeModal();
-  }
 };
 
 const createCommentElement = (comment) => {
