@@ -1,32 +1,31 @@
 import { isEscapeKey } from './util.js';
 
+const COMMENTS_PER_LOAD = 5;
+
 const bigPictureElement = document.querySelector('.big-picture');
 const closeButton = bigPictureElement.querySelector('.big-picture__cancel');
 const bigImage = bigPictureElement.querySelector('.big-picture__img img');
 const likesCount = bigPictureElement.querySelector('.likes-count');
-const commentsCount = bigPictureElement.querySelector('.comments-count');
+const commentsTotalCount = bigPictureElement.querySelector('.comments-count'); // ОБЩЕЕ количество
 const commentsList = bigPictureElement.querySelector('.social__comments');
 const photoDescription = bigPictureElement.querySelector('.social__caption');
 const commentCountBlock = bigPictureElement.querySelector('.social__comment-count');
 const commentsLoader = bigPictureElement.querySelector('.comments-loader');
 
-commentCountBlock.classList.add('hidden');
-commentsLoader.classList.add('hidden');
+let currentComments = [];
+let commentsShown = 0;
 
-function closeModal() {
-  bigPictureElement.classList.add('hidden');
-  document.body.classList.remove('modal-open');
+const updateCommentsCounter = () => {
+  const shownCountSpan = document.createElement('span');
+  shownCountSpan.textContent = commentsShown;
 
-  document.removeEventListener('keydown', onDocumentKeydown);
-  closeButton.removeEventListener('click', closeModal);
-}
+  const currentText = commentCountBlock.textContent || '';
+  const parts = currentText.split(' из ');
 
-function onDocumentKeydown(evt) {
-  if (isEscapeKey(evt)) {
-    evt.preventDefault();
-    closeModal();
+  if (parts.length > 0) {
+    commentCountBlock.innerHTML = `${commentsShown} из <span class="comments-count">${currentComments.length}</span> комментариев`;
   }
-}
+};
 
 const createCommentElement = (comment) => {
   const commentElement = document.createElement('li');
@@ -49,27 +48,70 @@ const createCommentElement = (comment) => {
   return commentElement;
 };
 
+const renderCommentsPortion = () => {
+  const commentsToRender = currentComments.slice(commentsShown, commentsShown + COMMENTS_PER_LOAD);
+
+  commentsToRender.forEach((comment) => {
+    commentsList.appendChild(createCommentElement(comment));
+  });
+
+  commentsShown += commentsToRender.length;
+
+  updateCommentsCounter();
+
+  if (commentsShown >= currentComments.length) {
+    commentsLoader.classList.add('hidden');
+  } else {
+    commentsLoader.classList.remove('hidden');
+  }
+};
+
+const onCommentsLoaderClick = () => {
+  renderCommentsPortion();
+};
+
+function closeModal() {
+  bigPictureElement.classList.add('hidden');
+  document.body.classList.remove('modal-open');
+
+  document.removeEventListener('keydown', onDocumentKeydown);
+  closeButton.removeEventListener('click', closeModal);
+  commentsLoader.removeEventListener('click', onCommentsLoaderClick);
+
+  commentsShown = 0;
+  currentComments = [];
+  commentsList.innerHTML = '';
+}
+
+function onDocumentKeydown(evt) {
+  if (isEscapeKey(evt)) {
+    evt.preventDefault();
+    closeModal();
+  }
+}
+
 const openFullscreen = (photoData) => {
   bigImage.src = photoData.url;
   bigImage.alt = photoData.description;
   likesCount.textContent = photoData.likes;
-  commentsCount.textContent = photoData.comments.length;
+  commentsTotalCount.textContent = photoData.comments.length;
   photoDescription.textContent = photoData.description;
 
   commentsList.innerHTML = '';
-  const commentsFragment = document.createDocumentFragment();
+  currentComments = photoData.comments;
+  commentsShown = 0;
 
-  photoData.comments.forEach((comment) => {
-    commentsFragment.appendChild(createCommentElement(comment));
-  });
+  commentCountBlock.classList.remove('hidden');
+  commentsLoader.classList.remove('hidden');
 
-  commentsList.appendChild(commentsFragment);
+  renderCommentsPortion();
 
   bigPictureElement.classList.remove('hidden');
   document.body.classList.add('modal-open');
 
   document.addEventListener('keydown', onDocumentKeydown);
   closeButton.addEventListener('click', closeModal);
+  commentsLoader.addEventListener('click', onCommentsLoaderClick);
 };
 
 export { openFullscreen };
