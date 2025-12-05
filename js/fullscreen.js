@@ -13,20 +13,20 @@ const commentsLoader = bigPictureElement.querySelector('.comments-loader');
 commentCountBlock.classList.add('hidden');
 commentsLoader.classList.add('hidden');
 
-const closeModal = () => {
+function closeModal() {
   bigPictureElement.classList.add('hidden');
   document.body.classList.remove('modal-open');
 
   document.removeEventListener('keydown', onDocumentKeydown);
   closeButton.removeEventListener('click', closeModal);
-};
+}
 
-const onDocumentKeydown = (evt) => {
+function onDocumentKeydown(evt) {
   if (isEscapeKey(evt)) {
     evt.preventDefault();
     closeModal();
   }
-};
+}
 
 const createCommentElement = (comment) => {
   const commentElement = document.createElement('li');
