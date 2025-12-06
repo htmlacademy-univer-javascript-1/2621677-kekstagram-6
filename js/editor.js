@@ -92,29 +92,16 @@ const applyEffect = (value) => {
     return;
   }
 
-  let displayValue = value;
-  if (effect.unit === '%') {
-    displayValue = Math.round(value);
-  } else if (effect.step === 0.1) {
-    displayValue = value.toFixed(1);
-  }
-
-  const filterValue = `${effect.filter}(${displayValue}${effect.unit})`;
+  const filterValue = `${effect.filter}(${value}${effect.unit})`;
   imagePreview.style.filter = filterValue;
-
-  if (effectLevelValue) {
-    effectLevelValue.value = displayValue;
-  }
 };
 
 const createSlider = () => {
   if (typeof noUiSlider === 'undefined') {
-    console.error('noUiSlider не найден. Проверьте подключение библиотеки.');
     return null;
   }
 
   if (!effectLevelSlider) {
-    console.error('Элемент слайдера не найден');
     return null;
   }
 
@@ -135,13 +122,12 @@ const createSlider = () => {
 
     sliderInstance.on('update', (values) => {
       const value = values[0];
+      effectLevelValue.value = value;
       applyEffect(value);
     });
 
-    console.log('Слайдер создан успешно');
     return sliderInstance;
   } catch (error) {
-    console.error('Ошибка создания слайдера:', error);
     return null;
   }
 };
@@ -152,9 +138,7 @@ const updateSliderForEffect = (effectName) => {
   if (effectName === 'none') {
     effectLevelContainer.classList.add('hidden');
     imagePreview.style.filter = 'none';
-    if (effectLevelValue) {
-      effectLevelValue.value = '';
-    }
+    effectLevelValue.value = '';
 
     if (sliderInstance) {
       sliderInstance.destroy();
@@ -195,16 +179,13 @@ const resetEffects = () => {
   currentEffect = 'none';
   imagePreview.style.filter = 'none';
 
-  if (effectLevelValue) {
-    effectLevelValue.value = '';
-  }
-
   const noneEffect = document.querySelector('#effect-none');
   if (noneEffect) {
     noneEffect.checked = true;
   }
 
   effectLevelContainer.classList.add('hidden');
+  effectLevelValue.value = '';
 
   if (sliderInstance) {
     sliderInstance.destroy();
@@ -221,10 +202,7 @@ const initEditor = () => {
   effectsList.addEventListener('change', onEffectChange);
 
   effectLevelContainer.classList.add('hidden');
-
   resetEffects();
-
-  console.log('Редактор инициализирован');
 };
 
 const resetEditor = () => {
