@@ -60,7 +60,7 @@ const EFFECTS = {
 };
 
 let currentEffect = 'none';
-
+let sliderInstance = null;
 
 const DEFAULT_SCALE = 100;
 const SCALE_STEP = 25;
@@ -84,15 +84,46 @@ const onScaleBiggerClick = () => {
   setScale(newValue);
 };
 
+const applyEffect = (value) => {
+  const effect = EFFECTS[currentEffect];
 
-const initSlider = () => {
-  if (typeof noUiSlider === 'undefined') {
-    console.error('noUiSlider не загружен!');
+  if (currentEffect === 'none') {
+    imagePreview.style.filter = 'none';
     return;
   }
 
-  if (!effectLevelSlider.noUiSlider) {
-    noUiSlider.create(effectLevelSlider, {
+  let displayValue = value;
+  if (effect.unit === '%') {
+    displayValue = Math.round(value);
+  } else if (effect.step === 0.1) {
+    displayValue = value.toFixed(1);
+  }
+
+  const filterValue = `${effect.filter}(${displayValue}${effect.unit})`;
+  imagePreview.style.filter = filterValue;
+
+  if (effectLevelValue) {
+    effectLevelValue.value = displayValue;
+  }
+};
+
+const createSlider = () => {
+  if (typeof noUiSlider === 'undefined') {
+    console.error('noUiSlider не найден. Проверьте подключение библиотеки.');
+    return null;
+  }
+
+  if (!effectLevelSlider) {
+    console.error('Элемент слайдера не найден');
+    return null;
+  }
+
+  try {
+    if (effectLevelSlider.noUiSlider) {
+      effectLevelSlider.noUiSlider.destroy();
+    }
+
+    sliderInstance = noUiSlider.create(effectLevelSlider, {
       range: {
         min: 0,
         max: 100
@@ -102,60 +133,71 @@ const initSlider = () => {
       connect: 'lower'
     });
 
-    effectLevelSlider.noUiSlider.on('update', (values, handle) => {
-      const value = values[handle];
-      effectLevelValue.value = value;
+    sliderInstance.on('update', (values) => {
+      const value = values[0];
       applyEffect(value);
     });
+
+    console.log('Слайдер создан успешно');
+    return sliderInstance;
+  } catch (error) {
+    console.error('Ошибка создания слайдера:', error);
+    return null;
   }
 };
 
-const applyEffect = (value) => {
-  const effect = EFFECTS[currentEffect];
-
-  if (currentEffect === 'none') {
-    imagePreview.style.filter = 'none';
-    return;
-  }
-
-  const filterValue = `${effect.filter}(${value}${effect.unit})`;
-  imagePreview.style.filter = filterValue;
-};
-
-const updateSlider = (effectName) => {
+const updateSliderForEffect = (effectName) => {
   const effect = EFFECTS[effectName];
 
   if (effectName === 'none') {
     effectLevelContainer.classList.add('hidden');
     imagePreview.style.filter = 'none';
-    effectLevelValue.value = '';
-  } else {
-    effectLevelContainer.classList.remove('hidden');
+    if (effectLevelValue) {
+      effectLevelValue.value = '';
+    }
 
-    effectLevelSlider.noUiSlider.updateOptions({
-      range: {
-        min: effect.min,
-        max: effect.max
-      },
-      start: effect.start,
-      step: effect.step
-    });
-
-    applyEffect(effect.start);
-    effectLevelValue.value = effect.start;
+    if (sliderInstance) {
+      sliderInstance.destroy();
+      sliderInstance = null;
+    }
+    return;
   }
+
+  effectLevelContainer.classList.remove('hidden');
+
+  if (!sliderInstance) {
+    sliderInstance = createSlider();
+    if (!sliderInstance) {
+      return;
+    }
+  }
+
+  sliderInstance.updateOptions({
+    range: {
+      min: effect.min,
+      max: effect.max
+    },
+    start: effect.start,
+    step: effect.step
+  });
+
+  applyEffect(effect.start);
 };
 
 const onEffectChange = (evt) => {
   if (evt.target.type === 'radio') {
     currentEffect = evt.target.value;
-    updateSlider(currentEffect);
+    updateSliderForEffect(currentEffect);
   }
 };
 
 const resetEffects = () => {
   currentEffect = 'none';
   imagePreview.style.filter = 'none';
+
+  if (effectLevelValue) {
+    effectLevelValue.value = '';
+  }
 
   const noneEffect = document.querySelector('#effect-none');
   if (noneEffect) {
@@ -164,20 +206,11 @@ const resetEffects = () => {
 
   effectLevelContainer.classList.add('hidden');
 
-  effectLevelValue.value = '';
-
-  if (effectLevelSlider.noUiSlider) {
-    effectLevelSlider.noUiSlider.updateOptions({
-      range: {
-        min: 0,
-        max: 100
-      },
-      start: 100,
-      step: 1
-    });
+  if (sliderInstance) {
+    sliderInstance.destroy();
+    sliderInstance = null;
   }
 };
-
 
 const initEditor = () => {
   setScale(DEFAULT_SCALE);
@@ -185,19 +218,17 @@ const initEditor = () => {
   scaleSmallerButton.addEventListener('click', onScaleSmallerClick);
   scaleBiggerButton.addEventListener('click', onScaleBiggerClick);
 
-  initSlider();
-
   effectsList.addEventListener('change', onEffectChange);
 
   effectLevelContainer.classList.add('hidden');
 
   resetEffects();
+
+  console.log('Редактор инициализирован');
 };
 
 const resetEditor = () => {
-  // Сброс масштаба
   setScale(DEFAULT_SCALE);
-
   resetEffects();
 };
 
