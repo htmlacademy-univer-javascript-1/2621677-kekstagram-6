@@ -1,4 +1,5 @@
 const Pristine = window.Pristine;
+import { initEditor, resetEditor } from './editor.js';
 
 const form = document.querySelector('.img-upload__form');
 const hashtagInput = document.querySelector('.text__hashtags');
@@ -82,11 +83,13 @@ form.addEventListener('submit', (evt) => {
 const resetForm = () => {
   form.reset();
   pristine.reset();
+  resetEditor();
 };
 
 fileInput.addEventListener('change', () => {
   overlay.classList.remove('hidden');
   document.body.classList.add('modal-open');
+  initEditor();
 });
 
 const closeForm = () => {
