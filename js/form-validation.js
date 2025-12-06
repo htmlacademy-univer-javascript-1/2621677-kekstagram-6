@@ -48,9 +48,7 @@ const validateHashtags = (value) => {
   return true;
 };
 
-const validateComment = (value) => {
-  return value.length <= 140;
-};
+const validateComment = (value) => value.length <= 140;
 
 const pristine = new Pristine(form, {
   classTo: 'img-upload__field-wrapper',
